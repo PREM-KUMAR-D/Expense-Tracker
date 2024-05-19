@@ -23,7 +23,7 @@ form.addEventListener('submit', (event) => {
     listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 
     const itemText = document.createElement('p');
-    itemText.textContent = `${category}: $${expense} - ${description}`;
+    itemText.textContent = `${category}: ${expense} - ${description}`;
 
     const buttonGroup = document.createElement('div');
 
