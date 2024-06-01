@@ -1,26 +1,42 @@
 const http = require('http');
+const fs = require('fs');
+const { escape } = require('querystring');
+const server = http.createServer((req, res) => {
+    const url = req.url;
+    const method = req.method;
+    res.setHeader('Content-Type', 'text/html');
+    if (url === '/' || url === '/home') {
+        let buttonVal = "Send";
+        const exist =fs.existsSync('message.txt');
+        if(exist){
+            const data =fs.readFileSync('message.txt');
+            buttonVal = data.toString();
+        }   
+        res.write('<html>');
+        res.write('<head><title>Enter Message</title></head>');
+        res.write(`<body><form action ="/message" method="POST"> <input type="text" name="message"> <button type="submit">${buttonVal}</button></form></body>`);
+        res.write('<html>');
+        return res.end();
 
-const server = http.createServer((req,res)=>{
-    const url =req.url;
-    res.setHeader('Content-Type','text/html');
-    if(url === '/' || url === '/home'){
-        res.write('<html>');
-        res.write('<head><title>Server</title></head>');
-        res.write('<body><h1>Welcome Home</h1></body>');
-        res.write('<html>');
+    }
+    if (url === '/message' && method === 'POST') {
+        const body  =[];
+        req.on('data',(chunk)=>{
+            console.log(chunk);
+            body.push(chunk);
+
+        });
+
+        req.on('end',()=>{
+            const parsedBody = Buffer.concat(body).toString();
+            const message = parsedBody.split('=')[1];
+            fs.writeFileSync('message.txt', message);
+        });
+        
+        res.statusCode = 302;
+        res.setHeader('Location','/')
         return res.end();
-    }else if(url === '/about'){
-        res.write('<html>');
-        res.write('<head><title>Server</title></head>');
-        res.write('<body><h1>Welcome to about us page</h1></body>');
-        res.write('<html>');
-        return res.end();
-    }else if(url === '/node'){
-        res.write('<html>');
-        res.write('<head><title>Server</title></head>');
-        res.write('<body><h1>Welcome to my nodeJS Project </h1></body>');
-        res.write('<html>');
-        return res.end();
+        // console.log('Redirected to message');
     }
 })
 
